@@ -61,7 +61,9 @@ async def signin(form_data: UserIn):
 @router.post('/login', response_model=UserOut)
 async def login(form_data: UserIn):
     user = services.user_service.get_by_username(form_data.username)
-    if not user or not services.user_service.verify_password(
+    if not user:
+        raise HTTPException(status_code=404, detail='Username not found')
+    elif not services.user_service.verify_password(
         form_data.password,
         user.password_hash,
     ):

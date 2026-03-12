@@ -6,9 +6,12 @@ class BaseService:
         self.session = session
 
 
-    def get_all(self):
-        return self.session.exec(select(self.model)).all()
-    
+    def get_all(self, include_disabled: bool = False):
+        stmt = select(self.model)
+        if not include_disabled:
+            stmt = stmt.where(self.model.disabled == False)
+        return self.session.exec(stmt).all()
+
 
     def get_by_id(self, id: int):
         return self.session.get(self.model, id)
@@ -20,3 +23,16 @@ class BaseService:
         self.session.commit()
         self.session.refresh(obj)
         return obj
+    
+
+    def remove(self, id: int, soft: bool = True):
+        obj = self.get_by_id(id)
+        if obj:
+            if soft:
+                obj.disabled = True
+                self.session.add(obj)
+            else:
+                self.session.delete(obj)
+            self.session.commit()
+            return True
+        return False

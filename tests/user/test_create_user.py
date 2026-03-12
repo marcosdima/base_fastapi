@@ -22,7 +22,7 @@ def test_create_user(client):
     assert body['token']
 
 
-def test_create_users_wrong_data(client):
+def test_create_users_wrong_password(client):
     bad_passwords = [
         {
             'password': 'short',

@@ -1,3 +1,8 @@
+sign_in_route = '/api/v1/users/signin'
+users_route = '/api/v1/users'
+login_route = '/api/v1/users/login'
+    
+
 def __get_authorization_header(token: str) -> dict:
     return {'Authorization': f'Bearer {token}'}
 
@@ -20,3 +25,23 @@ def put(client, url: str, data: dict, token: str = None):
 def delete(client, url: str, token: str = None):
     headers = __get_authorization_header(token) if token else {}
     return client.delete(url, headers=headers)
+
+## Create models.
+user_default_data = {
+    'username': 'John Doe',
+    'password': 'Secret@123',
+}
+
+
+def create_user(client, username: str, password: str) -> dict:
+    data = {
+        'username': username,
+        'password': password,
+    }
+    response = post(client, sign_in_route, data)
+    return response.json()
+
+
+def create_default_user(client) -> dict:
+    response = post(client, sign_in_route, user_default_data)
+    return response.json()
