@@ -47,10 +47,14 @@ def _build_user_out(user) -> dict:
 
 @router.post('/signin', response_model=UserOut, status_code=201)
 async def signin(form_data: UserIn):
-    user = services.user_service.create(
-        password=form_data.password,
-        username=form_data.username
-    )
+    try:
+        user = services.user_service.create(
+            password=form_data.password,
+            username=form_data.username
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
     return _build_user_out(user)
 
 

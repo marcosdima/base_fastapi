@@ -69,3 +69,12 @@ def test_create_users_wrong_data(client):
         assert body['detail'][0]['loc'] == case['loc']
         assert body['detail'][0]['type'] == case['type']
         assert case['msg'] in body['detail'][0]['msg']
+
+
+def test_create_user_existing_username(client):
+    post(client, signin_route, default_data)
+    response = post(client, signin_route, default_data)
+
+    assert response.status_code == 400
+    body = response.json()
+    assert body['detail'] == 'Username already exists'

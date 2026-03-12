@@ -2,6 +2,7 @@ from .base_service import BaseService
 from ..models import User
 from pwdlib import PasswordHash
 from sqlmodel import select
+from sqlalchemy.exc import IntegrityError
 
 
 password_hash = PasswordHash.recommended()
@@ -26,9 +27,16 @@ class UserService(BaseService):
     
 
     def create(self, username: str, password: str) -> User:
+        if self.get_by_username(username):
+            raise ValueError('Username already exists')
+
         hashed_password = self.hash_password(password)
-        user = super().create({
-            'username': username,
-            'password_hash': hashed_password
-        })
-        return user
+        try:
+            user = super().create({
+                'username': username,
+                'password_hash': hashed_password
+            })
+            return user
+        except IntegrityError as exc:
+            self.session.rollback()
+            raise ValueError('Username already exists') from exc
